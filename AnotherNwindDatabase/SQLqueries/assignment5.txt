@@ -1,0 +1,67 @@
+/*queries for assignment 5 
+Kimberly Quaranto 
+*/
+
+//order details query
+
+select OrderID,
+format(sum(UnitPrice * Quantity * (1 - Discount)), 2) as Subtotal
+from order_details
+group by OrderID
+order by OrderID;
+
+
+//sales by year query 
+select distinct date(a.ShippedDate) as ShippedDate,
+a.OrderID,
+b.Subtotal,
+year(a.ShippedDate) as Year
+from Orders a
+inner join
+(
+-- Get subtotal for each order
+select distinct OrderID,
+format(sum(UnitPrice * Quantity * (1 - Discount)), 2) as Subtotal
+from order_details
+group by OrderID
+) b on a.OrderID = b.OrderID
+where a.ShippedDate is not null
+and a.ShippedDate between date('1996-12-24') and date('1997-09-30')
+order by a.ShippedDate;
+
+
+//employee sales by country 
+select distinct b.*, a.CategoryName
+from categories a
+inner join products b on a.CategoryID = b.CategoryID
+where b.discontinued = 'N'
+order by b.ProductName;
+
+
+//Alphabetical List of Products 
+select distinct b.*, a.CategoryName
+from Categories a
+inner join Products b on a.CategoryID = b.CategoryID
+where b.Discontinued = 'N'
+order by b.ProductName;
+
+//Current Product List
+select ProductID, ProductName
+from products
+where Discontinued = 'N'
+order by ProductName;
+
+
+//Order Details Extended
+select distinct y.order_id,
+y.id,
+x.product_name,
+y.unit_price,
+y.quantity,
+y.discount,
+round(y.unit_price * y.quantity * (1 - y.discount), 2) as ExtendedPrice
+from products x
+inner join order_details y on x.id = y.id
+order by y.order_id;
+
+
